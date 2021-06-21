@@ -50,8 +50,12 @@ ioServer.on('connection', (socket) => {
     socket.on('answer', (answer, roomName) => {
         socket.broadcast.to(roomName).emit('answer', answer);
     });
-    socket.on('leave', ( roomName) => {
+
+    socket.on('leave', (roomName) => {
         socket.leave(roomName);
-        socket.broadcast.to(roomName).emit('leave');
+        const room = ioServer.sockets.adapter.rooms.get(roomName);
+        if(room.size === 1) {
+            socket.broadcast.to(roomName).emit('leave');
+        }
     });
 } );

@@ -4,7 +4,6 @@ const actionsWrapper = document.getElementById("actions-wrapper");
 const divVideoChat = document.getElementById("video-chat-room");
 const joinButton = document.getElementById("join");
 const userVideo = document.getElementById("user-video");
-const peerVideo = document.getElementById("peer-video");
 const roomInput = document.getElementById("roomName");
 
 const muteButton = document.getElementById("mute");
@@ -16,6 +15,7 @@ let rtcPeerConnection;
 let userStream;
 let isMuted = false;
 let isCameraHidden = false;
+let peerVideo;
 const iceServers = {
     iceServers: [
         {urls: "stun:stun.services.mozilla.com"},
@@ -46,13 +46,16 @@ const handleOnicecandidate = (event) => {
 const handleOntrack = (event) => {
     // this function will be called when peer sends media stream
     console.log('handleOntrack');
-   // const peerVideo = document.createElement('video');
+    if( event.track.kind === 'video' ) {
+        peerVideo = document.createElement('video');
 	
-    peerVideo.srcObject = event.streams[0];
-    peerVideo.onloadedmetadata = function(e) {
-        peerVideo.play();
-    };
-   // divVideoChat.appendChild(peerVideo);
+        peerVideo.srcObject = event.streams[0];
+        peerVideo.onloadedmetadata = function(e) {
+            peerVideo.play();
+        };
+       divVideoChat.appendChild(peerVideo);
+    }
+    
 };
 
 const displayUserVideo = (successCallback = () => {}) => {
@@ -153,7 +156,7 @@ const onLeaveRoom = () => {
     if(userVideo.srcObject) {
         userVideo.srcObject.getTracks().forEach( track => track.stop());
     }
-    if(peerVideo.srcObject) {
+    if(peerVideo && peerVideo.srcObject) {
         peerVideo.srcObject.getTracks().forEach( track => track.stop());
     }
 
